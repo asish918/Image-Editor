@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_editor/widgets/edit_image_view_model.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../widgets/image_text.dart';
 
@@ -19,14 +20,16 @@ class _EditImageScreenState extends EditImageViewModel {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar,
-      body: SafeArea(
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.3,
-          child: Stack(
-            children: [
-              _selectedImage,
-              for (int i = 0; i < texts.length; i++)
-                Positioned(
+      body: Screenshot(
+        controller: screenshotController,
+        child: SafeArea(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.3,
+            child: Stack(
+              children: [
+                _selectedImage,
+                for (int i = 0; i < texts.length; i++)
+                  Positioned(
                     left: texts[i].left,
                     right: texts[i].right,
                     top: texts[i].top,
@@ -48,25 +51,30 @@ class _EditImageScreenState extends EditImageViewModel {
                               context.findRenderObject() as RenderBox;
                           Offset off = renderBox.globalToLocal(drag.offset);
                           setState(() {
-                            texts[i].top = off.dy;
+                            texts[i].top = off.dy - 96;
                             texts[i].left = off.dx;
                           });
                         },
                       ),
-                    ),),
-              creatorText.text.isNotEmpty
-                  ? Positioned(
-                      left: 0,
-                      bottom: 0,
-                      child: Text(
-                        creatorText.text,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black.withOpacity(0.3),
+                    ),
+                  ),
+                creatorText.text.isNotEmpty
+                    ? Positioned(
+                        left: 0,
+                        bottom: 0,
+                        child: Text(
+                          creatorText.text,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black.withOpacity(
+                                0.3,
+                              )),
                         ),
-                      ))
-                  : const SizedBox.shrink(),
-            ],
+                      )
+                    : const SizedBox.shrink(),
+              ],
+            ),
           ),
         ),
       ),
@@ -131,7 +139,7 @@ class _EditImageScreenState extends EditImageViewModel {
                 tooltip: "Align Right",
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () => saveToGallery(context),
                 icon: Icon(
                   Icons.save,
                   color: Colors.black,
